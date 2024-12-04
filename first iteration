@@ -1,0 +1,6 @@
+pwd  # On macOS/Linux
+echo %cd%  # On Windows
+ls  # On macOS/Linux
+dir  # On Windows
+cd path/to/directory
+pip install -r "C:\path\to\requirements.txt"
