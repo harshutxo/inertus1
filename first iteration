@@ -1,6 +1,38 @@
-pwd  # On macOS/Linux
-echo %cd%  # On Windows
-ls  # On macOS/Linux
-dir  # On Windows
-cd path/to/directory
-pip install -r "C:\path\to\requirements.txt"
+import os
+import subprocess
+
+def list_files_in_directory(directory):
+    """List all files in the given directory."""
+    try:
+        files = os.listdir(directory)
+        print(f"Files in {directory}:")
+        for file in files:
+            print(file)
+        return files
+    except FileNotFoundError:
+        print(f"Directory {directory} not found.")
+        return []
+
+def check_and_install_requirements(directory=None):
+    """Check for requirements.txt and install packages."""
+    # Use the specified directory or the current directory
+    if directory:
+        os.chdir(directory)
+    current_directory = os.getcwd()
+    print(f"Current Directory: {current_directory}")
+
+    # List files in the current directory
+    files = list_files_in_directory(current_directory)
+
+    # Check if requirements.txt exists
+    if 'requirements.txt' in files:
+        print("requirements.txt found. Installing packages...")
+        # Run pip install command
+        subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+    else:
+        print("requirements.txt not found. Please ensure the file is in the current directory.")
+
+if __name__ == "__main__":
+    # Optionally specify a directory to check
+    directory_to_check = input("Enter the directory to check (leave blank for current directory): ").strip()
+    check_and_install_requirements(directory_to_check if directory_to_check else None)
