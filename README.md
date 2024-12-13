@@ -1,6 +1,8 @@
 # Requirements Installer
 
-This project is a simple Python script that automates the process of checking for a `requirements.txt` file in a specified directory and installing the listed packages using `pip`.
+## About
+
+The Requirements Installer is a Python script designed to streamline the process of managing Python dependencies. By automating the detection and installation of packages listed in a `requirements.txt` file, this tool simplifies environment setup for developers and ensures consistency across different development environments.
 
 ## Features
 
