@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Support Groups{% endblock %}
+
+{% block content %}
+<div class="groups-container">
+    <h1>Support Groups</h1>
+    
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_group') }}" class="button">Create New Group</a>
+    {% endif %}
+    
+    <div class="groups-grid">
+        {% for group in groups %}
+            <div class="group-card">
+                <h2>{{ group.name }}</h2>
+                <p>{{ group.description }}</p>
+                <p>Members: {{ group.members|length }}</p>
+                {% if current_user.is_authenticated and current_user not in group.members %}
+                    <a href="{{ url_for('join_group', group_id=group.id) }}" class="button">Join Group</a>
+                {% endif %}
+                <small>Created by {{ group.creator.username }} on {{ group.created_at.strftime('%Y-%m-%d') }}</small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

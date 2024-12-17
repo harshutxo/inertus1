@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Resources{% endblock %}
+
+{% block content %}
+<div class="resources-container">
+    <h1>Empathy Resources</h1>
+    
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('add_resource') }}" class="button">Add New Resource</a>
+    {% endif %}
+    
+    <div class="resources-grid">
+        {% for resource in resources %}
+            <div class="resource-card">
+                <h2>{{ resource.title }}</h2>
+                <p>{{ resource.description }}</p>
+                {% if resource.url %}
+                    <a href="{{ resource.url }}" target="_blank" class="button">Visit Resource</a>
+                {% endif %}
+                <small>Shared by {{ resource.author.username }} on {{ resource.created_at.strftime('%Y-%m-%d') }}</small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

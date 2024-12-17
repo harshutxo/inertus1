@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Files{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h2>Upload Files</h2>
+    
+    <form id="upload-form" class="upload-form">
+        <div class="file-input-container">
+            <input type="file" id="file-input" multiple>
+            <div id="file-preview" class="file-preview"></div>
+        </div>
+        
+        <div class="upload-progress" id="upload-progress" style="display: none;">
+            <div class="progress-bar"></div>
+        </div>
+        
+        <button type="submit" class="button">Upload Files</button>
+    </form>
+</div>
+
+<script>
+    const uploadForm = document.getElementById('upload-form');
+    const fileInput = document.getElementById('file-input');
+    const filePreview = document.getElementById('file-preview');
+    const progressBar = document.querySelector('.progress-bar');
+
+    fileInput.addEventListener('change', () => {
+        filePreview.innerHTML = '';
+        [...fileInput.files].forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.createElement('div');
+                preview.className = 'preview-item';
+                if (file.type.startsWith('image/')) {
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <span>${file.name}</span>
+                    `;
+                } else {
+                    preview.innerHTML = `
+                        <div class="file-icon">${file.name.split('.').pop()}</div>
+                        <span>${file.name}</span>
+                    `;
+                }
+                filePreview.appendChild(preview);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        [...fileInput.files].forEach(file => {
+            formData.append('files[]', file);
+        });
+
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('Files uploaded successfully!');
+                filePreview.innerHTML = '';
+                fileInput.value = '';
+            }
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Upload failed. Please try again.');
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>{{ user.username }}'s Profile</h1>
+    
+    {% if user.profile %}
+        {% if user.profile.avatar_url %}
+            <img src="{{ user.profile.avatar_url }}" alt="Profile picture" class="profile-avatar">
+        {% endif %}
+        
+        <div class="profile-info">
+            <h2>Bio</h2>
+            <p>{{ user.profile.bio or 'No bio added yet.' }}</p>
+            
+            <h2>Interests</h2>
+            <p>{{ user.profile.interests or 'No interests added yet.' }}</p>
+        </div>
+    {% else %}
+        <p>Profile not set up yet.</p>
+    {% endif %}
+
+    {% if user == current_user %}
+        <a href="{{ url_for('edit_profile') }}" class="button">Edit Profile</a>
+    {% endif %}
+
+    <div class="user-posts">
+        <h2>Recent Posts</h2>
+        {% for post in user.posts %}
+            <div class="post-card">
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.content[:200] }}...</p>
+                <small>Posted on {{ post.created_at.strftime('%Y-%m-%d') }}</small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

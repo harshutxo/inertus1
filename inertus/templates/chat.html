@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-sidebar">
+        <h3>Active Users</h3>
+        <div id="users-list"></div>
+    </div>
+    
+    <div class="chat-main">
+        <div class="chat-messages" id="chat-messages">
+            {% for message in messages %}
+                <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                    <strong>{{ message.sender.username }}</strong>
+                    <p>{{ message.content }}</p>
+                    <small>{{ message.created_at.strftime('%H:%M') }}</small>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="chat-input">
+            <form id="message-form">
+                <input type="text" id="message-input" placeholder="Type your message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    const socket = io();
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const messagesDiv = document.getElementById('chat-messages');
+
+    socket.on('connect', () => {
+        socket.emit('join', {room: '{{ chat_room }}'});
+    });
+
+    socket.on('message', (data) => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${data.sender === '{{ current_user.username }}' ? 'sent' : 'received'}`;
+        messageDiv.innerHTML = `
+            <strong>${data.sender}</strong>
+            <p>${data.message}</p>
+            <small>${data.timestamp}</small>
+        `;
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    messageForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (message) {
+            socket.emit('message', {
+                room: '{{ chat_room }}',
+                message: message,
+                receiver_id: '{{ receiver.id }}'
+            });
+            messageInput.value = '';
+        }
+    });
+</script>
+{% endblock %} 

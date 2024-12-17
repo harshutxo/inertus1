@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="messages-container">
+    <h1>Your Messages</h1>
+    
+    <div class="messages-tabs">
+        <div class="tab-headers">
+            <button class="tab-button active" data-tab="received">Received</button>
+            <button class="tab-button" data-tab="sent">Sent</button>
+        </div>
+        
+        <div class="tab-content active" id="received">
+            <h2>Received Messages</h2>
+            {% for message in received_messages %}
+                <div class="message-card">
+                    <p class="message-content">{{ message.content }}</p>
+                    <small>From: {{ message.sender.username }} on {{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="tab-content" id="sent">
+            <h2>Sent Messages</h2>
+            {% for message in sent_messages %}
+                <div class="message-card">
+                    <p class="message-content">{{ message.content }}</p>
+                    <small>To: {{ message.receiver.username }} on {{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

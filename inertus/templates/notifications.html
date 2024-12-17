@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <h2>Your Notifications</h2>
+    
+    <div class="notifications-list" id="notifications-list">
+        {% for notification in notifications %}
+            <div class="notification-item {% if not notification.is_read %}unread{% endif %}"
+                 data-id="{{ notification.id }}">
+                <div class="notification-content">
+                    <p>{{ notification.content }}</p>
+                    <small>{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                {% if not notification.is_read %}
+                    <button class="mark-read-btn">Mark as Read</button>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    const socket = io();
+    const notificationsList = document.getElementById('notifications-list');
+
+    socket.on('notification', (data) => {
+        const notificationDiv = document.createElement('div');
+        notificationDiv.className = 'notification-item unread';
+        notificationDiv.innerHTML = `
+            <div class="notification-content">
+                <p>${data.content}</p>
+                <small>${data.timestamp}</small>
+            </div>
+            <button class="mark-read-btn">Mark as Read</button>
+        `;
+        notificationsList.insertBefore(notificationDiv, notificationsList.firstChild);
+    });
+
+    document.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('mark-read-btn')) {
+            const notificationItem = e.target.closest('.notification-item');
+            const notificationId = notificationItem.dataset.id;
+            
+            try {
+                const response = await fetch(`/notifications/${notificationId}/read`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    notificationItem.classList.remove('unread');
+                    e.target.remove();
+                }
+            } catch (error) {
+                console.error('Failed to mark notification as read:', error);
+            }
+        }
+    });
+</script>
+{% endblock %} 
