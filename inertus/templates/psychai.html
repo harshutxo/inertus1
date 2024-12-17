@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}PsychAI Chat{% endblock %}
+
+{% block content %}
+<div class="psychai-container">
+    <div class="psychai-header">
+        <h1>PsychAI Chat</h1>
+        <p>Talk to our empathetic AI counselor. Remember, this is not a replacement for professional help.</p>
+    </div>
+
+    <div class="chat-window" id="chat-window">
+        <div class="chat-messages" id="chat-messages">
+            {% for message in messages|reverse %}
+                <div class="message user">
+                    <div class="message-content">{{ message.content }}</div>
+                    <div class="message-time">{{ message.created_at.strftime('%H:%M') }}</div>
+                </div>
+                <div class="message bot">
+                    <div class="message-content">{{ message.response }}</div>
+                    <div class="message-time">{{ message.created_at.strftime('%H:%M') }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form id="chat-form" class="chat-input">
+            <textarea 
+                id="message-input" 
+                placeholder="Type your message here..."
+                rows="3"
+                required
+            ></textarea>
+            <button type="submit" class="button button-primary">
+                <span class="button-text">Send</span>
+                <span class="button-loading hidden">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+            </button>
+        </form>
+    </div>
+
+    <div class="psychai-footer">
+        <p>If you're in crisis, please reach out to professional help:</p>
+        <ul>
+            <li>Emergency: 911</li>
+            <li>National Crisis Line: 988</li>
+            <li>Crisis Text Line: Text HOME to 741741</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const buttonText = document.querySelector('.button-text');
+    const buttonLoading = document.querySelector('.button-loading');
+
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Add user message to chat
+        appendMessage(message, 'user');
+
+        // Send message to backend
+        const response = await fetch('/psychai/message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Add AI response to chat
+            appendMessage(data.response, 'bot');
+        } else {
+            // Handle error
+            console.error('Error:', data.error);
+        }
+    });
+
+    function appendMessage(message, sender) {
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${sender}`;
+
+        const contentElement = document.createElement('div');
+        contentElement.className = 'message-content';
+        contentElement.textContent = message;
+
+        const timeElement = document.createElement('div');
+        timeElement.className = 'message-time';
+        timeElement.textContent = new Date().toLocaleTimeString();
+
+        messageElement.appendChild(contentElement);
+        messageElement.appendChild(timeElement);
+
+        chatMessages.appendChild(messageElement);
+
+        // Scroll to the bottom of the chat window
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+});
+</script>
+{% endblock %} 
